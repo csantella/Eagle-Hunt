@@ -10,6 +10,16 @@
     <string name="title_activity_faq">Frequently Asked Questions</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_maps">Map</string>
-    <string name="maps_api_key">AIzaSyCP5yXR7_5P2vHRdystmcwuRosRmXk12u0</string>
+    <string name="maps_api_key">AIzaSyDdSiZI-2IhKPJYXzKjbKhOs_QCSmiVXcM</string>
+
+    <string-array name="buildings">
+        <item>Alumni Memorial Union</item>
+        <item>Engineering Hall</item>
+        <item>Olin Engineering</item>
+        <item>Raynor Memorial Libraries</item>
+        <item>Marquette Hall</item>
+    </string-array>
+
+    <string name="title_activity_building_finder_map">Building Finder</string>
 
 </resources>

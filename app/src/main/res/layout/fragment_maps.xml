@@ -1,19 +1,15 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/map"
+    class="com.google.android.gms.maps.MapFragment"
+    map:mapType="normal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.team404.eaglehunt.MapsFragment">
+    android:layout_below="@+id/textView3"
+    android:layout_toStartOf="@+id/score"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentStart="true"
+    android:layout_marginTop="20dp" >
 
-    <fragment
-        class="com.google.android.gms.maps.MapFragment"
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/textView3"
-        android:layout_toStartOf="@+id/score"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp" />
-
-</FrameLayout>
+</fragment>

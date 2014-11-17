@@ -16,8 +16,9 @@ public class MainMenu extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getActionBar().hide();
+        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        supportRequestWindowFeature(Window.FEATURE_ACTION_BAR);
+        getSupportActionBar().hide();
         // If the Android version is lower than Jellybean, use this call to hide
         // the status bar.
         if (Build.VERSION.SDK_INT < 16) {

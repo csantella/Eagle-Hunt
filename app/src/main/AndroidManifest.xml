@@ -9,8 +9,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="com.team404.eaglehunt.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- Creating Permission to receive Google Maps -->
     <permission
@@ -28,17 +30,21 @@
         android:glEsVersion="0x00020000"
         android:required="true" />
 
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but are recommended.
+    -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/CustomActionBarTheme" >
-
         <uses-library android:name="com.google.android.maps" />
 
         <activity
-            android:name=".MainMenu"
+            android:name="com.team404.eaglehunt.MainMenu"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,34 +53,34 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".QuizMode"
+            android:name="com.team404.eaglehunt.QuizMode"
             android:label="@string/title_activity_quiz_mode"
-            android:theme="@style/CustomActionBarTheme"
-            android:parentActivityName=".MainMenu" >
+            android:parentActivityName="com.team404.eaglehunt.MainMenu"
+            android:theme="@style/CustomActionBarTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.team404.eaglehunt.MainMenu" />
         </activity>
         <activity
-            android:name=".BuildingFinder"
+            android:name="com.team404.eaglehunt.BuildingFinder"
             android:label="@string/title_activity_building_finder"
-            android:parentActivityName=".MainMenu" >
+            android:parentActivityName="com.team404.eaglehunt.MainMenu" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.team404.eaglehunt.MainMenu" />
         </activity>
         <activity
-            android:name=".HighScores"
+            android:name="com.team404.eaglehunt.HighScores"
             android:label="@string/title_activity_high_scores"
-            android:parentActivityName=".MainMenu" >
+            android:parentActivityName="com.team404.eaglehunt.MainMenu" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.team404.eaglehunt.MainMenu" />
         </activity>
         <activity
-            android:name=".FAQ"
+            android:name="com.team404.eaglehunt.FAQ"
             android:label="@string/title_activity_faq"
-            android:parentActivityName=".MainMenu" >
+            android:parentActivityName="com.team404.eaglehunt.MainMenu" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.team404.eaglehunt.MainMenu" />
@@ -86,14 +92,15 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_key" />
-    </application>
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!--
-         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
-         Google Maps Android API v2, but are recommended.
-    -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+        <activity
+            android:name="com.team404.eaglehunt.BuildingFinderMap"
+            android:label="@string/title_activity_building_finder_map"
+            android:parentActivityName="com.team404.eaglehunt.BuildingFinder" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.team404.eaglehunt.BuildingFinder" />
+        </activity>
+    </application>
 
 </manifest>

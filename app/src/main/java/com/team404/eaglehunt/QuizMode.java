@@ -11,7 +11,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -21,25 +25,26 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class QuizMode extends ActionBarActivity implements LocationListener {
+public class QuizMode extends ActionBarActivity implements GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
-    protected LocationListener mLocationListener;
+    LocationClient mLocationClient;
+    Location mCurrentLocation;
+    GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBar bar = getActionBar();
-        bar.setBackgroundDrawable(new ColorDrawable(R.color.gold_bg));
+        //android.support.v7.app.ActionBar bar = getSupportActionBar();
+        //bar.setBackgroundDrawable(new ColorDrawable(R.color.gold_bg));
+        mLocationClient = new LocationClient(this, this, this);
 
-        LocationManager mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-                (float) 0, this);
 
         setContentView(R.layout.activity_quiz_mode);
-        GoogleMap map = ((MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment))
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment))
                 .getMap();
-        moveMap(map);
+
+        map.setMyLocationEnabled(true);
     }
 
 
@@ -62,15 +67,57 @@ public class QuizMode extends ActionBarActivity implements LocationListener {
         return super.onOptionsItemSelected(item);
     }
 
-    public void moveMap(GoogleMap map)
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        if (mLocationClient != null)
+        {
+            mLocationClient.connect();
+        }
+        else
+        {
+            Toast.makeText(this,"Location service error.", Toast.LENGTH_SHORT);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        // If the client is connected
+        if (mLocationClient.isConnected()) {
+            /*
+             * Remove location updates for a listener.
+             * The current Activity is the listener, so
+             * the argument is "this".
+             */
+            mLocationClient.removeLocationUpdates(this);
+        }
+        /*
+         * After disconnect() is called, the client is
+         * considered "dead".
+         */
+        mLocationClient.disconnect();
+        super.onStop();
+
+    }
+
+    public void moveMap(GoogleMap map, Location loc)
     {
         double la; double lo;
-
+/**
         la = 43.039603; lo = -87.931179;
         Marker amu = createMapMarker(map, la, lo,"Alumni Memorial Union","AMU");
 
         la = 43.038353; lo = -87.933671;
         Marker ehall = createMapMarker(map, la, lo,"Engineering Hall","Opus College of Engineering");
+*/
+        la = loc.getLatitude(); lo = loc.getLongitude();
+
+        TextView txtLat = (TextView) findViewById(R.id.latValue);
+        txtLat.setText(String.valueOf(la));
+
+        TextView txtLon = (TextView) findViewById(R.id.lonValue);
+        txtLon.setText(String.valueOf(lo));
 
         // Zoom in, animating the camera.
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(la,lo),17),2000,null);
@@ -88,21 +135,8 @@ public class QuizMode extends ActionBarActivity implements LocationListener {
 
         TextView txtLon = (TextView) findViewById(R.id.lonValue);
         txtLon.setText(String.valueOf(lon));
-    }
 
-    @Override
-    public void onProviderDisabled(String provider) {
-        Log.d("Latitude", "disable");
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        Log.d("Latitude","enable");
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d("Latitude","status");
+        moveMap(map, mCurrentLocation);
     }
 
     public Marker createMapMarker(GoogleMap map, double lat, double lon, String name, String description)
@@ -114,5 +148,25 @@ public class QuizMode extends ActionBarActivity implements LocationListener {
             .icon(BitmapDescriptorFactory
                     .fromResource(R.drawable.ic_launcher)));
         return newMarker;
+    }
+
+    @Override
+    public void onConnected(Bundle bundle)
+    {
+        Toast.makeText(this, "Location service connected.", Toast.LENGTH_SHORT).show();
+        mCurrentLocation = mLocationClient.getLastLocation();
+        moveMap(map, mCurrentLocation);
+    }
+
+    @Override
+    public void onDisconnected()
+    {
+        Toast.makeText(this, "Location service disconnected.", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult)
+    {
+        Toast.makeText(this, "Location service connection unsuccessful.", Toast.LENGTH_SHORT).show();
     }
 }
