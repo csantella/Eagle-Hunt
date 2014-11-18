@@ -101,6 +101,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.team404.eaglehunt.BuildingFinder" />
         </activity>
+        <activity
+            android:name="com.team404.eaglehunt.QuizModeLauncher"
+            android:label="@string/title_activity_quiz_mode_launcher"
+            android:parentActivityName="com.team404.eaglehunt.MainMenu" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.team404.eaglehunt.MainMenu" />
+        </activity>
+
+        <service
+            android:name="com.team404.eaglehunt.ReceiveTransitionsIntentService"
+            android:label="@string/app_name"
+            android:exported="false" >
+        </service>
+
     </application>
 
 </manifest>

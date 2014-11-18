@@ -21,5 +21,25 @@
     </string-array>
 
     <string name="title_activity_building_finder_map">Building Finder</string>
+    <string name="title_activity_quiz_mode_launcher">Quiz Mode</string>
+    <string name="geofence_transition_notification_title">You have arrived!</string>
+    <string name="geofence_transition_notification_text">Congratulations on completing this riddle!</string>
+    <string name="geofence_transition_entered">entered</string>
+    <string name="geofence_transition_exited">exited</string>
+    <string name="geofence_transition_unknown">unknown</string>
+    <string name="connection_error_misconfigured">Misconfigured</string>
+    <string name="connection_error_internal">Internal error.</string>
+    <string name="connection_error_invalid_account">Invalid account</string>
+    <string name="connection_error_license_check_failed">License check failed</string>
+    <string name="connection_error_network">Network error</string>
+    <string name="connection_error_needs_resolution">Connection error</string>
+    <string name="connection_error_disabled">Services disabled</string>
+    <string name="connection_error_invalid">Services invalid</string>
+    <string name="connection_error_missing">Service missing</string>
+    <string name="connection_error_outdated">Service version outdated. Please update.</string>
+    <string name="connection_error_sign_in_required">Sign in required.</string>
+    <string name="connection_error_unknown">Unknown error.</string>
+    <string name="geofence_transition_invalid_type">Invalid type</string>
+    <string name="geofence_transition_error_detail">Error.</string>
 
 </resources>

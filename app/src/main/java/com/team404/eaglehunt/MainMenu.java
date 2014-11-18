@@ -59,7 +59,7 @@ public class MainMenu extends ActionBarActivity {
 
     public void onQuizModeClick(View view)
     {
-        Intent intent = new Intent(this, QuizMode.class);
+        Intent intent = new Intent(this, QuizModeLauncher.class);
         startActivity(intent);
 
     }
