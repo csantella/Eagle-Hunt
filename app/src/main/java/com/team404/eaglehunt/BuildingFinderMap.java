@@ -9,11 +9,14 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
+import android.media.Image;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +51,8 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
     // Start with updates turned off
     boolean mUpdatesRequested = false;
 
+    static double lat; static double lon;
+
 
     /*
  * Define a request code to send to Google Play services
@@ -71,7 +76,7 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
 
         setContentView(R.layout.activity_building_finder_map);
 
-        TextView tv = (TextView) findViewById(R.id.textView13);
+        TextView tv = (TextView) findViewById(R.id.textView12);
         tv.setText(title);
 
         GoogleMap map = ((MapFragment) getFragmentManager().findFragmentById(R.id.buildingFinderMap))
@@ -147,41 +152,76 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
 
 
 
-    public void moveMap(GoogleMap map, int pos)
+    public void moveMap(final GoogleMap map, int pos)
     {
         double la; double lo;
+        ImageView banner = (ImageView) findViewById(R.id.banner);
+        map.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(43.038663,-87.930123) , 14.0f) ); //set to default 'center of campus' location
+
+
+        Runnable mMyRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                animateCamera(map);
+            }
+        };
+
+        Handler myHandler = new Handler();
+        myHandler.postDelayed(mMyRunnable, 1000);//Message will be delivered in 1 second.
 
         switch (pos)
         {
             case 0:
-                la = 43.039603; lo = -87.931179;
+                la = 43.039603; lo = -87.931179; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.amu_bldg);
                 Marker amu = createMapMarker(map, la, lo,"Alumni Memorial Union","AMU");
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(la, lo), 17),2000,null);
                 break;
             case 1:
-                la = 43.038353; lo = -87.933671;
+                la = 43.038414; lo = -87.933366; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.ehall_bldg);
                 Marker ehall = createMapMarker(map, la, lo,"Engineering Hall","E-Hall");
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(la, lo), 17),2000,null);
+
                 break;
             case 2:
-                la = 43.038637; lo = -87.931552;
+                la = 43.038318; lo = -87.931763; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.olin_bldg);
                 Marker olin = createMapMarker(map, la, lo,"Olin Engineering/Haggerty Hall","Olin");
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(la, lo), 17),2000,null);
                 break;
             case 3:
-                la = 43.038075; lo = -87.929654;
+                la = 43.038075; lo = -87.929654; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.raynor_bldg);
                 Marker raynor = createMapMarker(map, la, lo,"Raynor Memorial Libraries","Raynor/Memorial");
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(la, lo), 17),2000,null);
                 break;
             case 4:
-                la = 43.038568; lo = -87.927711;
+                la = 43.038449; lo = -87.927766; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.marqh_bldg);
                 Marker marqHall = createMapMarker(map, la, lo,"Marquette Hall","Marquette Hall");
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(la, lo), 17),2000,null);
                 break;
-
+            case 5:
+                la = 43.038355; lo = -87.928758; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.cudahy_bldg);
+                Marker cudahy = createMapMarker(map, la, lo,"Cudahy Hall","Cudahy");
+                break;
+            case 6:
+                la = 43.037734; lo = -87.927888; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.davidstraz_bldg);
+                Marker dStraz = createMapMarker(map, la, lo,"David Straz Hall","Straz Hall");
+                break;
+            case 7:
+                la = 43.036822; lo = -87.929563; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.lalumiere_bldg);
+                Marker lalu = createMapMarker(map, la, lo,"Lalumiere Language Hall","Lalumiere");
+                break;
         }
 
 
+    }
+
+    public void animateCamera(GoogleMap map)
+    {
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 17),2000,null);
     }
 
     @Override

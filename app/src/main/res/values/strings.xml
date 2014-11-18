@@ -18,6 +18,9 @@
         <item>Olin Engineering</item>
         <item>Raynor Memorial Libraries</item>
         <item>Marquette Hall</item>
+        <item>Cudahy Hall</item>
+        <item>David Straz Hall</item>
+        <item>Lalumiere Language Hall</item>
     </string-array>
 
     <string name="title_activity_building_finder_map">Building Finder</string>
