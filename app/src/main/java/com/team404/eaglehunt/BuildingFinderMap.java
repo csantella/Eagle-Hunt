@@ -7,15 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +35,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.w3c.dom.Document;
+
+import java.util.ArrayList;
 
 
 public class BuildingFinderMap extends ActionBarActivity implements GooglePlayServicesClient.ConnectionCallbacks,
@@ -44,14 +53,18 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
     SharedPreferences mPrefs;
     // Get a SharedPreferences editor
     SharedPreferences.Editor mEditor;
-        /*
-         * Create a new location client, using the enclosing class to
-         * handle callbacks.
-         */
+    /*
+     * Create a new location client, using the enclosing class to
+     * handle callbacks.
+     */
     // Start with updates turned off
     boolean mUpdatesRequested = false;
 
     static double lat; static double lon;
+
+    GoogleMap map;
+    Button directions;
+    //Location mCurrentLocation;
 
 
     /*
@@ -79,10 +92,13 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
         TextView tv = (TextView) findViewById(R.id.textView12);
         tv.setText(title);
 
-        GoogleMap map = ((MapFragment) getFragmentManager().findFragmentById(R.id.buildingFinderMap))
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.buildingFinderMap))
                 .getMap();
 
         map.setMyLocationEnabled(true);
+
+        directions = (Button) findViewById(R.id.directions);
+        directions.setEnabled(false);
 
 
         moveMap(map, position);
@@ -99,7 +115,7 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
         }
         else
         {
-            Toast.makeText(this,"Location service error.", Toast.LENGTH_SHORT);
+            Toast.makeText(this,"Location service error.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -112,6 +128,7 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
              * The current Activity is the listener, so
              * the argument is "this".
              */
+            directions.setEnabled(false);
             mLocationClient.removeLocationUpdates(this);
         }
         /*
@@ -214,6 +231,21 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
                 banner.setImageResource(R.drawable.lalumiere_bldg);
                 Marker lalu = createMapMarker(map, la, lo,"Lalumiere Language Hall","Lalumiere");
                 break;
+            case 8:
+                la = 43.037526; lo = -87.932237; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.schroedercramer_bldg);
+                createMapMarker(map, la, lo,"Cramer Hall/Schroeder Complex","Cramer");
+                break;
+            case 9:
+                la = 43.036994; lo = -87.930577; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.twchem_bldg);
+                createMapMarker(map, la, lo,"Todd Wehr Chemistry Building","Wehr Chemistry");
+                break;
+            case 10:
+                la = 43.037258; lo = -87.931219; lat = la; lon = lo;
+                banner.setImageResource(R.drawable.wehrphys_bldg);
+                createMapMarker(map, la, lo,"William Wehr Physics Building","Wehr Physics");
+                break;
         }
 
 
@@ -222,6 +254,48 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
     public void animateCamera(GoogleMap map)
     {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 17),2000,null);
+    }
+
+    public void getDirections(View v)
+    {
+        double latitudeCurr;
+        double longitudeCurr;
+
+        try
+        {
+            latitudeCurr = map.getMyLocation().getLatitude();
+            longitudeCurr = map.getMyLocation().getLongitude();
+        }
+        catch (NullPointerException e)
+        {
+            latitudeCurr = mCurrentLocation.getLatitude();
+            longitudeCurr = mCurrentLocation.getLongitude();
+        }
+
+        LatLng fromPosition = new LatLng(latitudeCurr, longitudeCurr);
+        LatLng toPosition = new LatLng(lat, lon);
+
+        GMapV2Direction md = new GMapV2Direction();
+
+        Document doc = md.getDocument(fromPosition, toPosition, GMapV2Direction.MODE_WALKING);
+        ArrayList<LatLng> directionPoint = md.getDirection(doc);
+        PolylineOptions rectLine = new PolylineOptions().width(3).color(Color.BLUE);
+
+        for(int i = 0 ; i < directionPoint.size() ; i++) {
+            rectLine.add(directionPoint.get(i));
+        }
+
+        map.addPolyline(rectLine);
+
+/*
+        final Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("+http://maps.google.com/maps?" + "saddr="
+                        + Double.toString(latitudeCurr) + "," + Double.toString(longitudeCurr) + "&daddr="
+                        + Double.toString(lat) + "," + Double.toString(lon)));
+        intent.setClassName("com.google.android.apps.maps",
+                "com.google.android.maps.MapsActivity");
+        startActivity(intent);
+*/
     }
 
     @Override
@@ -253,7 +327,7 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
                 .title(name)
                 .snippet(description)
                 .icon(BitmapDescriptorFactory
-                        .fromResource(R.drawable.ic_launcher)));
+                        .fromResource(R.drawable.ic_eaglehunt_pin)));
         return newMarker;
     }
 
@@ -261,6 +335,7 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
     public void onConnected(Bundle bundle)
     {
         Toast.makeText(this, "Location service connected.", Toast.LENGTH_SHORT).show();
+        directions.setEnabled(true);
         mCurrentLocation = mLocationClient.getLastLocation();
     }
 
@@ -268,12 +343,14 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
     public void onDisconnected()
     {
         Toast.makeText(this, "Location service disconnected.", Toast.LENGTH_SHORT).show();
+        directions.setEnabled(false);
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult)
     {
         Toast.makeText(this, "Location service connection unsuccessful.", Toast.LENGTH_SHORT).show();
+        directions.setEnabled(false);
 
                 /*
          * Google Play services can resolve some errors it detects.
@@ -281,7 +358,7 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
          * start a Google Play services activity that can resolve
          * error.
          */
-        /**
+
         if (connectionResult.hasResolution()) {
             try {
                 // Start an Activity that tries to resolve the error
@@ -300,11 +377,10 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
 
              // If no resolution is available, display a dialog to the
              // user with the error.
-
-            showErrorDialog(connectionResult.getErrorCode());
+            showDialog(connectionResult.getErrorCode());
         }
 
-        */
+
 
     }
 

@@ -2,6 +2,7 @@ package com.team404.eaglehunt;
 
 import android.app.ActionBar;
 import android.app.Dialog;
+import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -11,10 +12,14 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +40,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Timer;
 
 
 public class QuizMode extends ActionBarActivity implements GooglePlayServicesClient.ConnectionCallbacks,
@@ -44,6 +51,8 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
     LocationClient mLocationClient;
     Location mCurrentLocation;
     GoogleMap map;
+    //Chronometer riddleTimer = new Chronometer(this);
+    boolean isRiddleActive = false;
 
    /*
     * Use to set an expiration time for a geofence. After this amount
@@ -77,7 +86,7 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
      * Internal geofence objects for geofence 1 and 2
      */
     private SimpleGeofence mUIGeofence1;
-    private SimpleGeofence mUIGeofence2;
+    //private SimpleGeofence mUIGeofence2;
     // Internal List of Geofence objects
     List<Geofence> mGeofenceList;
     // Persistent storage for geofences
@@ -93,7 +102,20 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
     // Flag that indicates if a request is underway.
     private boolean mInProgress;
     PendingIntent mTransitionPendingIntent;
+    int difficulty;
+    boolean isInGeofence = false;
+    Riddle currentRiddle;
+    int totalScore = 0;
+    int riddleDeduction = 0;
+    int riddleScore = 0;
 
+
+    TextView tv;
+    TextView tv2;
+    TextView rs;
+    TextView tv3;
+    TextView txtLon;
+    TextView txtLat;
 
 
 
@@ -104,7 +126,7 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
         //get difficulty level from previous screen
 
         Intent i = getIntent();
-        int difficulty  = i.getIntExtra("difficulty",0);
+        difficulty = i.getIntExtra("difficulty",0);
         showDifficulty(difficulty);
 
         //android.support.v7.app.ActionBar bar = getSupportActionBar();
@@ -115,6 +137,7 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
         setContentView(R.layout.activity_quiz_mode);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.mapFragment))
                 .getMap();
+        map.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(43.038663,-87.930123) , 14.0f) ); //set to default 'center of campus' location
 
         map.setMyLocationEnabled(true);
         initializeRiddleFactory();
@@ -127,6 +150,162 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
 
     }
 
+    public void onGoClick(View v)
+    {
+        isRiddleActive = !isRiddleActive;
+
+        tv = (TextView) findViewById(R.id.riddle);
+        tv2 = (TextView) findViewById(R.id.score);
+        rs = (TextView) findViewById(R.id.roundScore);
+        tv3 = (TextView) findViewById(R.id.textView);
+        txtLat = (TextView) findViewById(R.id.latValue);
+        txtLon = (TextView) findViewById(R.id.lonValue);
+
+        int riddleIndex = getRiddleIndex(difficulty); // 0 easy, 1 med, 2 hard
+        int radius = 0;
+
+        if (isRiddleActive)
+        {
+            //riddleTimer.start();
+            riddleScore = 600;
+            currentRiddle = RiddleFactory.riddlesList.get(riddleIndex);
+            tv.setText(currentRiddle.getContent());
+            rs.setText(String.valueOf(riddleScore));
+            Button bt = (Button) findViewById(R.id.button);
+            bt.setText("Quit");
+            //tv2.setBackgroundColor(getResources().getColor(R.color.gold_bg));
+            //tv3.setBackgroundColor(getResources().getColor(R.color.gold_bg));
+            //createGeofences();
+
+            Runnable myRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    int loop = 0;
+                    mCurrentLocation = map.getMyLocation();
+                    while (!isInGeofence) {
+                        try {
+                            Thread.sleep(2000); // Waits for 1 second (1000 milliseconds)
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),"Loop interrupted.",Toast.LENGTH_SHORT).show();
+                        }
+                        //mCurrentLocation = mLocationClient.getLastLocation();
+                        /**
+                         Check to see if the user's latitude and longitude are within a square radius of the solution.
+                         */
+
+                        //final double lat = mCurrentLocation.getLatitude();
+                        //final double lon = mCurrentLocation.getLongitude();
+
+
+
+                        if (mCurrentLocation.getLatitude()>=(currentRiddle.latitude - (currentRiddle.getRadius()/10000)) &&
+                                mCurrentLocation.getLatitude()<=(currentRiddle.latitude + (currentRiddle.getRadius()/10000)))
+                        {
+                            if (mCurrentLocation.getLongitude()>=(currentRiddle.longitude - (currentRiddle.getRadius()/10000)) &&
+                                    mCurrentLocation.getLongitude()<=(currentRiddle.longitude + (currentRiddle.getRadius()/10000)) )
+                            {
+                                //User is within geofence
+                                isInGeofence = true;
+
+                            }
+                        }
+
+                        rs.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //run loop
+                                //riddleDeduction = riddleDeduction - 1;
+                                riddleScore = riddleScore - 1;
+                                if (riddleScore < 0)
+                                    riddleScore = 0;
+                                rs.setText(String.valueOf(riddleScore)); //put round score on text
+                            }
+                        });
+
+                        txtLon.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //run loop
+                                txtLon.setText(String.valueOf(mCurrentLocation.getLatitude())); //put lon in text
+                            }
+                        });
+
+                        txtLat.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //run loop
+                                txtLat.setText(String.valueOf(mCurrentLocation.getLongitude())); //put lat
+                            }
+                        });
+                    }
+                }
+
+            };
+
+            Thread myThread = new Thread(myRunnable);
+            myThread.start();
+
+            bt.setEnabled(false);
+
+            if (isInGeofence)
+            {
+                updateTotalScore();
+                Toast.makeText(getApplicationContext(),"Is in Geofence", Toast.LENGTH_SHORT).show();
+            }
+
+
+        }
+        else
+        {
+            //riddleTimer.stop();
+            //riddleScore = 100;
+            riddleScore = 0;
+            riddleDeduction = 0;
+            tv.setText("[Click GO!]");
+            //tv2.setText(String.valueOf(riddleScore));
+            Button bt = (Button) findViewById(R.id.button);
+            bt.setText("GO!");
+            tv2.setBackgroundColor(getResources().getColor(R.color.transparent));
+            tv3.setBackgroundColor(getResources().getColor(R.color.transparent));
+            rs.setText(String.valueOf(riddleScore)); //put round score on text
+            //tv2.setText(String.valueOf(totalScore)); //put total score on text
+
+        }
+
+}
+
+    private void updateTotalScore() {
+
+
+        /**
+         * Code reaches this point when the geofence is reached
+         */
+
+        totalScore = totalScore + riddleScore;
+        tv2.setText(String.valueOf(totalScore)); //put total score on text
+    }
+
+    public void checkGeofence()
+    {
+
+    }
+
+    private int getRiddleIndex(int mode)
+    {
+        //int index = 0;
+        final Random rand = new Random();
+        int diceRoll = rand.nextInt(RiddleFactory.riddlesList.size()) + 1; // uniformly distributed int from 1 to 3
+        diceRoll--;
+        Riddle tryMe = RiddleFactory.riddlesList.get(diceRoll);
+        while (tryMe.getDifficulty()!=mode)
+        {
+            diceRoll = rand.nextInt(RiddleFactory.riddlesList.size()) + 1; // uniformly distributed int from 1 to 3
+            diceRoll--;
+            tryMe = RiddleFactory.riddlesList.get(diceRoll);
+        }
+        return diceRoll;
+    }
 
     /**
      * Get the geofence parameters for each geofence from the UI
@@ -140,28 +319,14 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
          */
         mUIGeofence1 = new SimpleGeofence(
                 "1",
-                Double.valueOf(mLatitude1.getText().toString()),
-                Double.valueOf(mLongitude1.getText().toString()),
-                Float.valueOf(mRadius1.getText().toString()),
+                mCurrentLocation.getLatitude(),
+                mCurrentLocation.getLongitude(),
+                100f,
                 GEOFENCE_EXPIRATION_TIME,
                 // This geofence records only entry transitions
                 Geofence.GEOFENCE_TRANSITION_ENTER);
         // Store this flat version
         mGeofenceStorage.setGeofence("1", mUIGeofence1);
-        // Create another internal object. Set its ID to "2"
-        mUIGeofence2 = new SimpleGeofence(
-                "2",
-                Double.valueOf(mLatitude2.getText().toString()),
-                Double.valueOf(mLongitude2.getText().toString()),
-                Float.valueOf(mRadius2.getText().toString()),
-                GEOFENCE_EXPIRATION_TIME,
-                // This geofence records both entry and exit transitions
-                Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT);
-        // Store this flat version
-        mGeofenceStorage.setGeofence("2", mUIGeofence2);
-        mGeofenceList.add(mUIGeofence1.toGeofence());
-        mGeofenceList.add(mUIGeofence2.toGeofence());
     }
 
     /*
@@ -251,7 +416,7 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
         }
         else
         {
-            Toast.makeText(this,"Location service error.", Toast.LENGTH_SHORT);
+            Toast.makeText(this,"Location service error.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -287,10 +452,9 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
 */
         la = loc.getLatitude(); lo = loc.getLongitude();
 
-        TextView txtLat = (TextView) findViewById(R.id.latValue);
+        txtLat = (TextView) findViewById(R.id.latValue);
         txtLat.setText(String.valueOf(la));
-
-        TextView txtLon = (TextView) findViewById(R.id.lonValue);
+        txtLon = (TextView) findViewById(R.id.lonValue);
         txtLon.setText(String.valueOf(lo));
 
         // Zoom in, animating the camera.
@@ -305,10 +469,10 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
         double lat = location.getLatitude();
         double lon = location.getLongitude();
 
-        TextView txtLat = (TextView) findViewById(R.id.latValue);
+        txtLat = (TextView) findViewById(R.id.latValue);
         txtLat.setText(String.valueOf(lat));
 
-        TextView txtLon = (TextView) findViewById(R.id.lonValue);
+        txtLon = (TextView) findViewById(R.id.lonValue);
         txtLon.setText(String.valueOf(lon));
 
         //moveMap(map, mCurrentLocation);
@@ -328,8 +492,10 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
     @Override
     public void onConnected(Bundle bundle)
     {
-        Toast.makeText(this, "Location service connected.", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Location service connected.", Toast.LENGTH_SHORT).show();
         mCurrentLocation = mLocationClient.getLastLocation();
+        //txtLat.setText(String.valueOf(mCurrentLocation.getLatitude()));
+        //txtLon.setText(String.valueOf(mCurrentLocation.getLongitude()));
         moveMap(map, mCurrentLocation);
 
         switch (mRequestType) {
@@ -338,8 +504,8 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
                 mTransitionPendingIntent =
                         getTransitionPendingIntent();
                 // Send a request to add the current geofences
-                mLocationClient.addGeofences(
-                        mCurrentGeofences, mTransitionPendingIntent, this);
+               // mLocationClient.addGeofences(
+               //         mCurrentGeofences, mTransitionPendingIntent, this);
                 break;
             case DO_NOTHING:
                 break;
@@ -373,15 +539,19 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
                 diff = "HARD";
                 break;
         }
-        Toast.makeText(this, diff, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, diff, Toast.LENGTH_SHORT).show();
     }
 
     public void initializeRiddleFactory()
     {
-        Riddle ehall = new Riddle("E-Hall",0,43.038441,-87.933345);
-        Riddle pit = new Riddle("The Pit",1,43.038300,-87.932046);
+        Riddle ehall = new Riddle("Which building is known as \"E-Hall\"?",0,43.038441,-87.933345,5);
+        Riddle pit = new Riddle("What building is home to \"The Pit\"?",0,43.038300,-87.932046,5);
         RiddleFactory.riddlesList.add(ehall);
         RiddleFactory.riddlesList.add(pit);
+
+        RiddleFactory.riddlesList.add(new Riddle("Navigate to the building that houses the Office of Residence Life",1,43.039051,-87.925525,2));
+        RiddleFactory.riddlesList.add(new Riddle("Which University building was formerly a YMCA?",2,43.038297,-87.923559,3));
+        RiddleFactory.riddlesList.add(new Riddle("Navigate to the building that houses the Office of Residence Life",1,43.038300,-87.932046,5));
     }
 
     public void addGeofences() {
@@ -654,6 +824,46 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
         private String getGeofenceFieldKey(String id,
                                            String fieldName) {
             return KEY_PREFIX + "_" + id + "_" + fieldName;
+        }
+    }
+
+    public class ReceiveGeofenceTransitionIntentService extends IntentService {
+        /**
+         * Sets an identifier for the service
+         */
+        public ReceiveGeofenceTransitionIntentService() {
+            super("ReceiveGeofenceTransitionsIntentService");
+        }
+
+        @Override
+        protected void onHandleIntent(Intent intent) {
+
+            // Create a local broadcast Intent
+            Intent broadcastIntent = new Intent();
+
+            // Give it the category for all intents sent by the Intent Service
+            //broadcastIntent.addCategory(CATEGORY_LOCATION_SERVICES);
+
+
+            // First check for errors
+            if (LocationClient.hasError(intent)) {
+                // Get the error code with a static method
+                int errorCode = LocationClient.getErrorCode(intent);
+            }
+            else {
+                // Get the type of transition (entry or exit)
+                int transition =
+                        LocationClient.getGeofenceTransition(intent);
+
+                if ((transition == Geofence.GEOFENCE_TRANSITION_ENTER)  ||
+                        (transition == Geofence.GEOFENCE_TRANSITION_EXIT)) {
+
+                    // Post a notification
+                }
+                else {
+                    // handle the error
+                }
+            }
         }
     }
 

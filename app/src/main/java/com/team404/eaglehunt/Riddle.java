@@ -12,14 +12,16 @@ public class Riddle {
     protected final int id = RiddleFactory.getNewID();
     protected double latitude = 0;
     protected double longitude = 0;
+    protected int radius = 0;
 
 
-    public Riddle(String c, int d, double la, double lo)
+    public Riddle(String c, int d, double la, double lo, int radius)
     {
         this.content = c;
         this.difficulty = d;
         this.latitude = la;
         this.longitude = lo;
+        this.radius = radius;
     }
 
     public String getContent()
@@ -30,6 +32,11 @@ public class Riddle {
     public int getDifficulty()
     {
         return this.difficulty;
+    }
+
+    public int getRadius()
+    {
+        return this.radius;
     }
 
 }

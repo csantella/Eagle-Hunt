@@ -5,7 +5,7 @@
     map:mapType="normal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_below="@+id/textView3"
+    android:layout_below="@+id/riddle"
     android:layout_toStartOf="@+id/score"
     android:layout_alignParentBottom="true"
     android:layout_alignParentLeft="true"

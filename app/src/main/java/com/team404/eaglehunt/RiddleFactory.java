@@ -1,5 +1,7 @@
 package com.team404.eaglehunt;
 
+import android.app.Application;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,15 +15,21 @@ public class RiddleFactory {
     public static ArrayList<Riddle> riddlesList = new ArrayList<Riddle>();
     protected static int maxID = 0;
 
+
     public void riddleFactory()
     {
+        //riddlesList = new ArrayList<Riddle>();
+    }
 
+    public void riddleFactory(ArrayList<Riddle> l)
+    {
+        riddlesList = l;
     }
 
     public static List<Riddle> getRiddles()
     {
-        ArrayList<Riddle> riddles = new ArrayList<Riddle>();
-        return riddles;
+        //ArrayList<Riddle> riddles = new ArrayList<Riddle>();
+        return riddlesList;
     }
 
     public static int getNewID()
@@ -30,9 +38,9 @@ public class RiddleFactory {
         return maxID;
     }
 
-    public static void addRiddle(String context, int difficulty, double la, double lo)
+    public static void addRiddle(String context, int difficulty, double la, double lo, int rad)
     {
-        Riddle newRiddle = new Riddle(context, difficulty, la, lo);
+        Riddle newRiddle = new Riddle(context, difficulty, la, lo, rad);
         riddlesList.add(newRiddle);
     }
 

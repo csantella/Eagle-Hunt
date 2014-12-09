@@ -2,4 +2,5 @@
 <resources>
     <color name="gold_bg">#FFFFB000</color>
     <color name="blue_text">#FF0588FF</color>
+    <color name="transparent">#00000000</color>
 </resources>
