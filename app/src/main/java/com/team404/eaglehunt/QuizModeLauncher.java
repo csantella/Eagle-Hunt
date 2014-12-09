@@ -21,8 +21,8 @@ public class QuizModeLauncher extends ActionBarActivity {
         Button med = (Button) findViewById(R.id.medButon);
         Button hard = (Button) findViewById(R.id.hardButton);
 
-        med.setEnabled(false);
-        hard.setEnabled(false);
+        //med.setEnabled(false);
+        //hard.setEnabled(false);
     }
 
 

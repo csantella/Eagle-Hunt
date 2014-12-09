@@ -100,7 +100,6 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
         directions = (Button) findViewById(R.id.directions);
         directions.setEnabled(false);
 
-
         moveMap(map, position);
 
     }
@@ -335,7 +334,7 @@ public class BuildingFinderMap extends ActionBarActivity implements GooglePlaySe
     public void onConnected(Bundle bundle)
     {
         Toast.makeText(this, "Location service connected.", Toast.LENGTH_SHORT).show();
-        directions.setEnabled(true);
+        //directions.setEnabled(true);
         mCurrentLocation = mLocationClient.getLastLocation();
     }
 

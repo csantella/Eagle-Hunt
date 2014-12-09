@@ -181,7 +181,7 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
                 @Override
                 public void run() {
                     int loop = 0;
-                    mCurrentLocation = map.getMyLocation();
+                    //mCurrentLocation = map.getMyLocation();
                     while (!isInGeofence) {
                         try {
                             Thread.sleep(2000); // Waits for 1 second (1000 milliseconds)
@@ -551,7 +551,12 @@ public class QuizMode extends ActionBarActivity implements GooglePlayServicesCli
 
         RiddleFactory.riddlesList.add(new Riddle("Navigate to the building that houses the Office of Residence Life",1,43.039051,-87.925525,2));
         RiddleFactory.riddlesList.add(new Riddle("Which University building was formerly a YMCA?",2,43.038297,-87.923559,3));
-        RiddleFactory.riddlesList.add(new Riddle("Navigate to the building that houses the Office of Residence Life",1,43.038300,-87.932046,5));
+        RiddleFactory.riddlesList.add(new Riddle("This church is named after a famous saint.",1,43.037669,-87.931034,1));
+        RiddleFactory.riddlesList.add(new Riddle("This building was formerly Marquette's Gymnasium.",2,43.036470,-87.932227,4));
+        RiddleFactory.riddlesList.add(new Riddle("Navigate to the site that used to be referred to as South Hall?",2,43.036373,-87.934582,5));
+        RiddleFactory.riddlesList.add(new Riddle("Which current academic building was formerly used as student apartments?",2,43.038410,-87.926651,4));
+        RiddleFactory.riddlesList.add(new Riddle("Which building is named after a famous church in Rome?",1,43.038488,-87.927179,3));
+        RiddleFactory.riddlesList.add(new Riddle("This building is home to Marquette Central and admissions staff.",0,43.039128,-87.927936,5));
     }
 
     public void addGeofences() {

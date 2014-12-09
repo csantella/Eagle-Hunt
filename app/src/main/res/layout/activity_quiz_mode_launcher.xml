@@ -17,7 +17,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:onClick="onMediumClick" />
+        android:onClick="onMediumClick"
+        android:textColor="#ffffffff" />
 
     <Button
         android:layout_width="wrap_content"
@@ -42,7 +43,8 @@
         android:layout_alignEnd="@+id/medButon"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:onClick="onHardClick" />
+        android:onClick="onHardClick"
+        android:textColor="#ffffffff" />
 
     <TextView
         android:layout_width="wrap_content"
